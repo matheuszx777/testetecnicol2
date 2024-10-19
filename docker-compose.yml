@@ -1,0 +1,28 @@
+version: '3.7'
+services:
+  web:
+    image: drupal:9.5
+    ports:
+      - "8080:80"
+    volumes:
+      - ./html:/var/www/html
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=drupal
+      - MYSQL_USER=drupal_user
+      - MYSQL_PASSWORD=secret
+    depends_on:
+      - db
+    command: >
+      bash -c "if [ ! -d /var/www/html ]; then
+        composer create-project drupal/recommended-project /var/www/html;
+      fi && apache2-foreground"
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root_secret
+      MYSQL_DATABASE: drupal
+      MYSQL_USER: drupal_user
+      MYSQL_PASSWORD: secret
+    volumes:
+      - ./mysql-data:/var/lib/mysql
